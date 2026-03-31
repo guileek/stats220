@@ -1,0 +1,100 @@
+---
+title: Analysis of number of people observed by the time of day and day type
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+body {
+  font-family: Arial, serif;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+h1, h2 {
+  color: #6C3BAA;
+  text-align: center;
+}
+
+p {
+  max-width: 800px;
+  margin: 15px auto;
+  font-size: 16px;
+}
+
+img {
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin: 30px;
+}
+
+```
+```{r}
+library(tidyverse)
+
+# Loading my data in
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSUC04OdqkByKtoLhiOpbvoyzK17XSsSuEJY2pzDWmv-W71In0ZaZWVGkx2f3buUVVrWScmtoXqQjeR/pub?output=csv")
+
+# Renaming my columns
+latest_data <- logged_data %>%
+  rename(date_time = 1,
+         day_type = 2,
+         time_of_day = 3,
+         phone_proportion = 4)
+
+# Using the mean proportion of people seen using their phones
+mean_phone_use <- mean(latest_data$phone_proportion, na.rm = TRUE)
+
+# Using the maximum proportion of people seen using their phones
+max_phone_use <- max(latest_data$phone_proportion, na.rm = TRUE)
+
+# First bar chart
+time_summary <- latest_data %>%
+  group_by(time_of_day) %>%
+  summarise(mean_phone_use = mean(phone_proportion, na.rm = TRUE))
+
+ggplot(time_summary) +
+  geom_col(aes(x = time_of_day, y = mean_phone_use),
+           fill = "#236F40") +
+  labs(
+    title = "Average proportion of people using phones on the bus by Time of Day",
+    x = "Time of day",
+    y = "Average phone proportion"
+  )
+
+# Second bar chart
+day_summary <- latest_data %>%
+  group_by(day_type) %>%
+  summarise(mean_phone_use = mean(phone_proportion, na.rm = TRUE))
+
+ggplot(day_summary) +
+  geom_col(aes(x = day_type, y = mean_phone_use),
+           fill = "#6FC276") +
+  labs(
+    title = "Average proportion of people using phones on the bus by Type of Day",
+    x = "Day type",
+    y = "Average phone proportion"
+  )
+
+```
+
+
+## Number of people on their phones in the bus
+
+This report explores how the proportion of people seen on their phones on the bus differs depending on the time of day and whether it was on a weekend or weekday. This data was collected through a series of observations, recorded at different times during the day. With these observations, the average proportion of people on their phones was `r round(mean_phone_use,2)` with the highest proportion observed being `r max_phone_use`.
+
+## Average proportion of people using phones on the bus by Time of Day
+
+The bar chart shows the average proportion of people using their phones at different times of the day. Looking at this graph, we can observe that the phone usage was highest during the early morning (5am to 9am) and afternoon (12pm to 5pm), with the average proportion being around 0.7. The average proportion from morning (9am - 12pm) to late evening (9pm - 5am) was around 0.5, suggesting that the time of day may have an effect on the average proportion of phone usage on the bus. This bar chart shows that people are more likely to use their phones earlier in the day. However, more data or logs would be needed to confirm whether the pattern shown here is consistent.
+
+## Average proportion of people using phones on the bus by Type of Day
+
+The bar chart shows the average proportion of people using their phones at a different type of day (weekday or weekend). Looking at this graph, we observe that the phone usage was slightly higher on a weekday (around 0.62) compared to a weekend (around 0.59). This suggests that people are more likely to use their phones during the weekday on a bus. The difference between these values are quite small, which also suggests they are relatively similar and cannot say with confidence that phone usage is higher on a weekday. More observations on weekends would help determine whether there is a difference or not.
+
+
+
